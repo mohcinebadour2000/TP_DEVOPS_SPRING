@@ -29,7 +29,7 @@ jobs:
       uses: act10ns/slack@v1
       with: 
           status: ${{ job.status }}
-          steps: ${{ toJson(step) }}
+          steps: ${{ toJson(steps) }}
           channel: '#tp_devops_channel'
           message: branch Successfully ..
       if: always()
