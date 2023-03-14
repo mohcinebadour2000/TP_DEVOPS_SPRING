@@ -51,13 +51,13 @@ jobs:
     - name: Send email notification
       uses: dawidd6/action-send-mail@v2.2.0
       with:
-        server_address: smtp.sendgrid.net
-        server_port: 587
-        username: ${{ badour.info@gmail.com }}
-        password: ${{ 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 }}
-        to: badour.info@gmail.com
-        subject: Workflow completed
-        body: The workflow has completed successfully!
+          server_address: smtp.sendgrid.net
+          server_port: 587
+          username: ${{ secrets.badour.info@gmail.com }}
+          password: ${{ secrets.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 }}
+          to: badour.info@gmail.com
+          subject: Workflow completed
+          body: The workflow has completed successfully!
           
     #Notifier sur slack lors de build complet de projet  
     - name: Slack Notification
