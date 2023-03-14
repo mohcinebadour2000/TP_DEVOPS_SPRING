@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v3
       
     # Exécute une seule commande à l'aide du shell
-    - name:  Étape 2 - Set up JDK 17
+    - name:  Étape 2 - installation de JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
@@ -42,7 +42,7 @@ jobs:
     - name: Étape 4 - les tests unitaires de code
       run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
       
-    - name: Step 5 - Set up a cache for Maven
+    - name: Étape 5 - Configurer un cache pour Maven
       uses: actions/cache@v2
       with:
         path: ~/.m2
