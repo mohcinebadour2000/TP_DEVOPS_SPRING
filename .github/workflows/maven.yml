@@ -56,6 +56,6 @@ jobs:
           status: ${{ job.status }}
           steps: ${{ toJson(steps) }}
           channel: '#tp_devops_channel'
-          message: slack notification received.
+          message: notification de compilation.
       if: always()
 
