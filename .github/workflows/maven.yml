@@ -8,23 +8,48 @@ on:
 
 jobs:
   build:
+    # Délai de construction
     timeout-minutes: 2
+    
+    # Le type de runner sur lequel la tâche s'exécutera
     runs-on: ubuntu-latest
     env:
+      # Notification de Slack
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    # Les étapes représentent une séquence de tâches qui seront exécutées dans le cadre du travail
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 19
+    
+    # Vérifie le référentiel sous $GITHUB_WORKSPACE, afin que le travail puisse y accéder
+    - name: Étape 1 - Commander la branche principale de GitHub
+      uses: actions/checkout@v3
+      
+    # Exécute une seule commande à l'aide du shell
+    - name:  Étape 2 - Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
-      run: mvn clean install
-      #run: mvn -B package --file pom.xml
-    - name: Test
+        
+    - name: Étape 3 - Demandez aux actions GitHub de créer le projet Maven
+      run: |
+        mvn -B package --file pom.xml
+        mkdir staging && cp target/*.jar staging
+        #mvn clean install
+        #run: mvn -B package --file pom.xml
+    
+    #Effectuer les testes de code 
+    - name: Étape 4 - les tests unitaires de code
       run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+      
+    - name: Step 5 - Set up a cache for Maven
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2      
+      
+    #Notifier sur slack lors de build complet de projet  
     - name: Slack Notification
       uses: act10ns/slack@v1
       with: 
