@@ -1,0 +1,83 @@
+name: maven
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    # Délai de construction
+    timeout-minutes: 2
+    
+    # Le type de runner sur lequel la tâche s'exécutera
+    runs-on: ubuntu-latest
+    env:
+      # Notification de Slack
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    # Les étapes représentent une séquence de tâches qui seront exécutées dans le cadre du travail
+    steps:
+    
+    # Vérifie le référentiel sous $GITHUB_WORKSPACE, afin que le travail puisse y accéder
+    - name: Étape 1 - Commander la branche principale de GitHub
+      uses: actions/checkout@v3
+      
+    # Exécute une seule commande à l'aide du shell
+    - name:  Étape 2 - installation de JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Étape 3 - Demandez aux actions GitHub de créer le projet Maven
+      run: |
+        mvn -B package --file pom.xml
+        mkdir staging && cp target/*.jar staging
+        #mvn clean install
+        #run: mvn -B package --file pom.xml
+    
+    #Effectuer les testes de code 
+    - name: Étape 4 - les tests unitaires de code
+      run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+    - name: Étape 6 - docker
+      run: 
+        docker build -t dockerspring .
+        docker run -p 8080:8080 dockerspring
+      
+    - name: Étape 5 - Configurer un cache pour Maven
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2      
+    #- name: Send email notification
+      #uses: dawidd6/action-send-mail@v2.2.0
+      #with:
+          #server_address: smtp.sendgrid.net
+          #server_port: 587
+          #username: ${{ secrets.badour.info@gmail.com }}
+          #password: ${{ secrets.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 }}
+          #to: badour.info@gmail.com
+          #subject: Workflow completed
+          #body: The workflow has completed successfully!
+          
+    #Notifier sur slack lors de build complet de projet  
+    - name: Slack Notification
+      uses: act10ns/slack@v1
+      with: 
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#tp_devops_channel'
+          message: notification de compilation.
+      if: always()
+    #Notifier sur teams lors de build complet de projet  
+    #- name: Teams notification
+      #uses: jdcargile/ms-teams-notification@v1.3
+      #with:
+          #github-token: ${{ github.token }} # this will use the runner's token.
+          #ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          #notification-summary: Your custom notification message 
+          #notification-color: 17a2b8
+
