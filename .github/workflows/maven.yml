@@ -41,6 +41,10 @@ jobs:
     #Effectuer les testes de code 
     - name: Étape 4 - les tests unitaires de code
       run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+    - name: Étape 6 - docker
+      run: 
+        docker build -t dockerspring .
+        docker run -p 8080:8080 dockerspring
       
     - name: Étape 5 - Configurer un cache pour Maven
       uses: actions/cache@v2
