@@ -41,17 +41,19 @@ jobs:
     #Effectuer les testes de code 
     - name: Étape 4 - les tests unitaires de code
       run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
-    - name: Étape 6 - docker
-      run: 
-        docker build -t dockerspring .
-        #docker run -p=8080:8080 dockerspring
       
     - name: Étape 5 - Configurer un cache pour Maven
       uses: actions/cache@v2
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2      
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Étape 6 - docker
+      run: 
+        docker build -t dockerspring .
+        #docker run -p=8080:8080 dockerspring
+        
     #- name: Send email notification
       #uses: dawidd6/action-send-mail@v2.2.0
       #with:
